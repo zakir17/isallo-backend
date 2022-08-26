@@ -1,4 +1,5 @@
 import express from "express";
+import { ObjectId } from "mongodb";
 import { getClient } from "../db";
 import Submission from "../models/Submission";
 
@@ -32,6 +33,45 @@ submissionRouter.post("/", async (req, res) => {
       .collection<Submission>("submissions")
       .insertOne(newSubmission);
     res.status(200).json(newSubmission);
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+submissionRouter.delete("/:id", async (req, res) => {
+  try {
+    const id: string = req.params.id;
+    const client = await getClient();
+    const results = await client
+      .db()
+      .collection<Submission>("submissions")
+      .deleteOne({ _id: new ObjectId(id) });
+    if (results.deletedCount) {
+      res.sendStatus(204);
+    } else {
+      res.status(404);
+      res.send(" No id found");
+    }
+  } catch (err) {
+    errorResponse(err, res);
+  }
+});
+
+submissionRouter.get("/:id", async (req, res) => {
+  try {
+    const id: string = req.params.id;
+    const client = await getClient();
+    const result = await client
+      .db()
+      .collection<Submission>("submissions")
+      .findOne({ _id: new ObjectId(id) });
+    if (result) {
+      res.status(200);
+      res.json(result);
+    } else {
+      res.status(404);
+      res.send(" No id found");
+    }
   } catch (err) {
     errorResponse(err, res);
   }
