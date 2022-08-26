@@ -15,11 +15,11 @@ submissionRouter.get("/:uid", async (req, res) => {
     const uid: string | undefined = req.params.uid;
     const client = await getClient();
     const query: any = { uid };
-    const results = await client
+    const cursor = client
       .db()
       .collection<Submission>("submissions")
-      .find(query)
-      .toArray();
+      .find(query);
+    const results = await cursor.toArray();
     res.status(200);
     res.json(results);
   } catch (err) {
